@@ -101,7 +101,17 @@ class Runner(threading.Thread):
             time.sleep(delay / 1000.0)
 
             if(taskType == "mouse"):
-                pass
+                x,y = msg
+                if(sta == "left"):
+                    pyautogui.click(x,y,1,1,'left') #X,Y，点击次数，次数间隔，方式
+                elif(sta == "right"):
+                    pyautogui.rightClick(x, y)
+                    pass
+                elif(sta == "move"):
+                     pyautogui.moveTo(x, y)
+                else:
+                    print("mouse sta error!")
+
             elif(taskType == "keyboard"):
                 if(sta == "down"):
                     pyautogui.keyDown(msg)
