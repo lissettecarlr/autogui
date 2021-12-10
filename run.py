@@ -4,7 +4,6 @@ import pyautogui
 import time
 import threading
 import json
-import pyautogui
 
 class Runner(threading.Thread):
     def __init__(self):
@@ -13,6 +12,7 @@ class Runner(threading.Thread):
         self.count = 1  # 执行次数
         self.closeFlag = True # 退出标志位
         self.scriptsPath = ""
+        self.nowCmdLog=""
 
     def run(self):
         print('run')
@@ -57,6 +57,8 @@ class Runner(threading.Thread):
     def close(self):
         self.closeFlag = False
 
+    def getNowCmdLog(self):
+        return self.nowCmdLog
     #开始执行脚本
     def runScripts(self):
         lines=[]
@@ -89,7 +91,10 @@ class Runner(threading.Thread):
         for i in range(steps):
             if(self.closeFlag == False): #如果中途退出，则不在执行脚本了
                 return
-            print(s[i])
+
+            self.nowCmdLog = s[i]
+            print(self.nowCmdLog)
+            
             #执行该行命令的延时
             delay = s[i][0]
             #是键盘还是鼠标

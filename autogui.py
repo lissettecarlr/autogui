@@ -8,6 +8,7 @@ import pythoncom
 import threading
 import win32api
 import run
+import wincore
 
 mainHander = ""
 
@@ -31,6 +32,11 @@ class autogui():
         self.runnerThread.start()
         self.runnerThread.setScritpsPath(scriptPath)
         self.runnerThread.setCount(int(count))
+    
+    def listenStart(self):
+        pythoncom.PumpMessages()
+    def listenStop(self):
+        win32api.PostQuitMessage()
 
 def onKeyboardEvent(event):
     #print(event.Key)  # 返回按下的键
@@ -40,7 +46,7 @@ def onKeyboardEvent(event):
     elif(event.Key == "F10"):
         print("stop!")
         mainHander.runnerThread.close()
-        win32api.PostQuitMessage()
+        mainHander.listenStop()
     elif(event.Key == "F8"):
         print(mainHander.nowMousePosition)
     return True
@@ -53,32 +59,21 @@ def onMouseEvent(event):
         # print(event.Position)
     return True
 
-def ListenInit():
-    hm = pyWinhook.HookManager()
-    #键盘
-    hm.KeyDown = onKeyboardEvent
-    hm.HookKeyboard()
-    # 监听鼠标 
-    hm.MouseAll = onMouseEvent   
-    hm.HookMouse()
-
 
 if __name__=='__main__':
     print(sys.argv)
-    if len(sys.argv) != 3:
-        print("input error "+ str(len(sys.argv)))
-    else:
+    #命令方式执行脚本
+    if len(sys.argv) == 3:
         scriptPath = sys.argv[1]
         count = sys.argv[2]
-
-        # runnerThread = run.Runner()
-        # runnerThread.start()
-        # runnerThread.setScritpsPath(scriptPath)
-        # runnerThread.setCount(int(count))
-
+        
         mainHander = autogui()
         mainHander.runnerInit(scriptPath,count)
+        mainHander.listenStart()
+    #启动窗体    
+    elif(len(sys.argv) == 1):
+        wincore.open(sys)
+    else:
+        print("input error "+ str(len(sys.argv)))
 
-        # ListenInit()
-        pythoncom.PumpMessages()
 
