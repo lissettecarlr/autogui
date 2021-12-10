@@ -17,7 +17,7 @@ Python\Python39\Lib\site-packages\qt5_applications\Qt\bin
 
 将软件导出的UI文件转化为py文件
 ```
-pyuic5 -o autogui_w.py autogui_w.ui
+pyuic5 -o win.py win.ui
 ```
 
 ## 引入
@@ -96,4 +96,11 @@ self.setWindowTitle('自用的蓝牙工具')
         LE1Validator = QRegExpValidator(self)
         LE1Validator.setRegExp(reg)
         self.lineEdit.setValidator(LE1Validator)
+```
+
+控制窗体
+```
+self.showMinimized()# 最小状态
+self.showNormal()#正常态
+self.activateWindow() #活动态
 ```

@@ -1,9 +1,11 @@
 # 该文件用于脚本的执行和停止
 
+from logging import log
 import pyautogui
 import time
 import threading
 import json
+from loguru import logger
 
 class Runner(threading.Thread):
     def __init__(self):
@@ -15,7 +17,7 @@ class Runner(threading.Thread):
         self.nowCmdLog=""
 
     def run(self):
-        print('run')
+        logger.info('run')
         while 1:
             if(self.flag):
                 #如果一开始次数为0则表示无线循环
@@ -24,7 +26,7 @@ class Runner(threading.Thread):
                 else:
                     nowCount = self.count
                     while(nowCount>0):
-                        print("count: "+ str(self.count))
+                        logger.info("count: "+ str(self.count))
                         self.runScripts()
                         nowCount=nowCount-1
                         #执行完毕,恢复默认
@@ -34,7 +36,7 @@ class Runner(threading.Thread):
                 pass
             if(self.closeFlag == False):
                 break
-        print('end')
+        logger.info('end')
 
     
     #设置循环次数
@@ -42,7 +44,7 @@ class Runner(threading.Thread):
         if(self.flag == False):
             self.count = count
         else:
-            print("running，set fail")
+            logger.error("running，set fail")
 
     #设置脚本地址
     def setScritpsPath(self,path):
@@ -63,17 +65,17 @@ class Runner(threading.Thread):
     def runScripts(self):
         lines=[]
         content = ''
-        print(self.scriptsPath)
+        logger.info(self.scriptsPath)
         try:
             lines = open(self.scriptsPath, 'r', encoding='utf8').readlines()
         except Exception as e:
-            print("open fail1"+e)
+            logger.error("open fail1"+e)
             try:
                 lines = open(self.scriptsPath, 'r', encoding='gbk').readlines()
             except Exception as e:
-                print("open fail2"+e)
+                logger.error("open fail2"+e)
 
-        print(lines)
+        #print(lines)
 
         for line in lines:
             # 去注释
@@ -84,7 +86,7 @@ class Runner(threading.Thread):
             line = line.strip()
             content += line
         content = content.replace('],\n]', ']\n]').replace('],]', ']]')
-        print(content)
+        # logger.info(content)
         s = json.loads(content)
         steps = len(s)
         #执行脚本中的每一行
@@ -93,7 +95,7 @@ class Runner(threading.Thread):
                 return
 
             self.nowCmdLog = s[i]
-            print(self.nowCmdLog)
+            logger.info(self.nowCmdLog)
             
             #执行该行命令的延时
             delay = s[i][0]
@@ -115,7 +117,7 @@ class Runner(threading.Thread):
                 elif(sta == "move"):
                      pyautogui.moveTo(x, y)
                 else:
-                    print("mouse sta error!")
+                    logger.error("mouse sta error!")
 
             elif(taskType == "keyboard"):
                 if(sta == "down"):
@@ -125,6 +127,6 @@ class Runner(threading.Thread):
                 elif(sta == "txt"):
                     pyautogui.typewrite(msg)     
             else:
-                print("script error:taskType")
+                logger.error("script error:taskType")
                 pass
 

@@ -72,7 +72,7 @@ if __name__=='__main__':
         mainHander.listenStart()
     #启动窗体    
     elif(len(sys.argv) == 1):
-        wincore.open(sys)
+        wincore.windowsOpen(sys)
     else:
         print("input error "+ str(len(sys.argv)))
 
