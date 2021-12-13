@@ -7,7 +7,7 @@
 * 参数2：keyboard/mouse 按键或者鼠标命令
 * 参数3：根据上面命令不同此处也不同
     如果是按键：down/up/txt 按下/抬起/输入文本
-    如果是鼠标：left/right/move 移动后左单击/移动后右单击/单纯移动
+    如果是鼠标：left down/left up/right down/right up/move
 * 参数4：如果是按键则其值就为键值或文本，如果是鼠标则值为横坐标，纵坐标。
 
 
@@ -20,9 +20,5 @@
  [263,"keyboard","down","b"],
  [112,"keyboard","up","b"],
  [112,"keyboard","txt","test"],
- [1000,"mouse","right",[387,370]], 
+ [1000,"mouse","left down",[387,370]], 
 ```
-
-## 补充
-
-* 在抓取键盘输入的时候发现，目前没有up事件，长按则是连续获取到down，所有脚本中可以不写up。

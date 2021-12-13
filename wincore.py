@@ -112,7 +112,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def buttonRecordStop(self):
         self.statusBar.showMessage('record stop',3000)  
         if(not self.record):#如果啥也没录到则直接退出
-            return
+            return True
         # 根据输入文字建立新的脚本
         name = self.lineEdit_3.text()
         if(name == ""):
@@ -192,10 +192,35 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
 
     # 监听到鼠标事件调用
     def onMouseEvent(self,event):
-        if(event.MessageName=="mouse move"):
-            self.nowMousePos = str(event.Position)
-            if(self.Captureflag):
-                self.setMousePos(self.nowMousePos)
+        #log = "mouse record add:" + "00" + " " + event.MessageName + " " + str(event.Position)
+        #logger.debug(log)
+        if(self.creatScripts):
+            if(not self.record): #如果是新脚本则默认第一个指令前延时5秒
+                delay = 5000
+            else:
+                delay = self.getNowTime() - self.eventTagTime
+            #这里需要现在鼠标移动的采集率
+            if(event.MessageName=="mouse move" and delay<=200):
+                    return True
+                
+            self.eventTagTime = self.getNowTime()
+            log = "mouse record add:" + str(delay) + " " + event.MessageName + " " + str(event.Position)
+            logger.debug(log)
+            # 修改类型
+            if(event.MessageName == "mouse left down"):
+                mouseType = "left down"
+            elif(event.MessageName == "mouse left up"): # 妈蛋监听键盘压根儿就没有up
+                mouseType = "left up"
+            elif(event.MessageName == "mouse move"):
+                mouseType = "move"
+            elif(event.MessageName == "mouse right down"):
+                mouseType = "right down"
+            elif(event.MessageName == "mouse right up"):
+                mouseType = "right up"
+            else:
+                return True#其他类型不处理
+            #存储
+            self.record.append([delay, 'mouse', mouseType, event.Position])
         return True
 
 

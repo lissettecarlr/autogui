@@ -109,11 +109,15 @@ class Runner(threading.Thread):
 
             if(taskType == "mouse"):
                 x,y = msg
-                if(sta == "left"):
-                    pyautogui.click(x,y,1,1,'left') #X,Y，点击次数，次数间隔，方式
-                elif(sta == "right"):
-                    pyautogui.rightClick(x, y)
-                    pass
+                if(sta == "left down"):
+                    #pyautogui.click(x,y,1,1,'left') #X,Y，点击次数，次数间隔，方式
+                    pyautogui.mouseDown(x, y, 'left')
+                elif(sta == "right down"):
+                    pyautogui.mouseDown(x, y, 'right')
+                elif(sta == "left up"):
+                    pyautogui.mouseUp(x, y, 'left')
+                elif(sta == "right up"):
+                    pyautogui.mouseUp(x, y, 'right')
                 elif(sta == "move"):
                      pyautogui.moveTo(x, y)
                 else:
