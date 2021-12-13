@@ -22,7 +22,11 @@ pip debug --verbose
  pip install .\pyWinhook-1.6.2-cp39-cp39-win_amd64.whl
 ```
 
-## 使用
+## 版本
+
+## V4+
+修复录制事件只要down照成在某些软件中无法正常复现操作的问题，也就是手工在每次变化的时候加上一个up。
+其他和V4相同
 
 ## 当前版本V4
 增加了按键录制功能

@@ -59,7 +59,7 @@ def onMouseEvent(event):
         # print(event.Position)
     return True
 
-
+             
 if __name__=='__main__':
     print(sys.argv)
     #命令方式执行脚本

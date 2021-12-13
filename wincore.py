@@ -23,6 +23,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.eventTagTime = 0    #保存上一次鼠标或者键盘事件时间
         self.creatScripts = False #是否开始录制标志位
         self.record = []  #缓存录制脚本
+        self.lastKey = ""
 
         self.setWindowTitle('自动化工具')
         self.statusBar=QStatusBar()
@@ -110,6 +111,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
 
     def buttonRecordStop(self):
         self.statusBar.showMessage('record stop',3000)  
+        if(not self.record):#如果啥也没录到则直接退出
+            return
         # 根据输入文字建立新的脚本
         name = self.lineEdit_3.text()
         if(name == ""):
@@ -151,6 +154,10 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
             print("stop!")
         elif(event.Key == "F8"):#抓取鼠标位置
             self.setMousePos(self.nowMousePos)
+        elif(event.Key =="F7"):#停止录制
+            self.showNormal()
+            self.activateWindow()
+            self.buttonRecordStop()
         else: # 排除快捷键
             if(self.creatScripts):
                 if(not self.record): #如果是新脚本则默认第一个指令前延时5秒
@@ -167,9 +174,17 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
                     keyType = "up"
                 else:
                     return #其他类型不处理
+                #发现个问题，如果单纯录制没有up的操作，实际打字没问题，但是在WOW中没法用
+                #这里添加逻辑，当按键发生变化则添加一个up
                 log = "record add: " + str(delay) + " " + keyType + " " + event.Key
                 logger.debug(log)
-                self.record.append([delay, 'keyboard', keyType, event.Key])
+                logger.debug("self.lastKey="+self.lastKey)
+                if((self.lastKey=="") or (self.lastKey == event.Key)):
+                    self.record.append([delay, 'keyboard', keyType, event.Key])
+                else:
+                    self.record.append([1, 'keyboard', "up", self.lastKey])
+                    self.record.append([delay, 'keyboard', keyType, event.Key])
+                self.lastKey = event.Key
                 
             
 
@@ -191,23 +206,3 @@ def windowsOpen(sys):
     win.show()
     sys.exit(app.exec_())
 
-# def onKeyboardEvent(event):
-#     #print(event.Key)  # 返回按下的键
-#     if(event.Key == "F9"):
-#         print("start!")
-#         mainHander.runnerThread.go()
-#     elif(event.Key == "F10"):
-#         print("stop!")
-#         mainHander.runnerThread.close()
-#         mainHander.listenStop()
-#     elif(event.Key == "F8"):
-#         print(mainHander.nowMousePosition)
-#     return True
-
-# # 监听到鼠标事件调用
-# def onMouseEvent(event):
-#     if(event.MessageName=="mouse move"):
-#         #print(event.MessageName)
-#         mainHander.nowMousePosition = event.Position
-#         # print(event.Position)
-#     return True
