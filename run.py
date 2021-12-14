@@ -1,16 +1,30 @@
 # 该文件用于脚本的执行和停止
 
-from logging import log
 import pyautogui
 import time
 import threading
 import json
 from loguru import logger
 
+
+keyDict={
+'0':'0', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5', '6':'6', '7':'7', '8':'8', '9':'9',
+'A':'a', 'B':'b', 'C':'c', 'D':'d', 'E':'e', 'F':'f', 'G':'g', 'H':'h', 'I':'i', 'J':'j', 'K':'k', 'L':'l', 'M':'m', 
+'N':'n', 'O':'o', 'P':'p', 'Q':'q', 'R':'r', 'S':'s', 'T':'t', 'U':'u', 'V':'v', 'W':'w', 'X':'x', 'Y':'y', 'Z':'z',
+'Oem_3':'`', 'Tab':'tab', 'Capital':'capslock', 'Lshift':'shiftleft', 'Lcontrol':'ctrlleft', 'Oem_Minus':'-', 'Oem_Plus':'=', 'Back':'backspace', 
+'Oem_4':'[', 'Oem_6':']', 'Oem_5':'\\', 'Oem_1':';', 'Oem_7':"'", 'Return':'enter', 'Oem_Comma':',', 'Oem_Period':'.',
+'Oem_2':'/', 'Rshift':'shiftright', 'Up':'up', 'Down':'down', 'Left':'left', 'Right':'right', 'Prior':'pageup', 'Next':'pagedown', 
+'Lmenu':'altleft', 'Rmenu':'altright', 'Rcontrol':'ctrlright', 'Escape':'esc', 'F1':'f1', 'F2':'f2', 'F3':'f3', 'F4':'f4', 'F5':'f5',
+'F6':'f6', 'F7':'f7', 'F8':'f8', 'F9':'f9', 'F10':'f10', 'F11':'f11', 'F12':'f12', 'Home':'home', 'End':'end', 'Insert':'insert',
+'Delete':'delete',
+'Lwin':'winleft','Rwin':'winright'
+}
+
+
 class Runner(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.flag= False # 标志运行和停止
+        self.flag= False # 标志运行(T)和停止(F)
         self.count = 1  # 执行次数
         self.closeFlag = True # 退出标志位
         self.scriptsPath = ""
@@ -29,8 +43,11 @@ class Runner(threading.Thread):
                         logger.info("count: "+ str(self.count))
                         self.runScripts()
                         nowCount=nowCount-1
-                        #执行完毕,恢复默认
-                        self.flag=False    
+                        if(self.flag == False):#如果在运行中切换为关闭
+                            nowCount =0
+                    #执行完毕,恢复默认
+                    self.flag=False    
+                    logger.info("scripts over")
             else:
                 time.sleep(1)
                 pass
@@ -61,6 +78,10 @@ class Runner(threading.Thread):
 
     def getNowCmdLog(self):
         return self.nowCmdLog
+
+    def getStatus(self):
+        return self.flag
+
     #开始执行脚本
     def runScripts(self):
         lines=[]
@@ -91,8 +112,9 @@ class Runner(threading.Thread):
         steps = len(s)
         #执行脚本中的每一行
         for i in range(steps):
-            if(self.closeFlag == False): #如果中途退出，则不在执行脚本了
-                return
+            if(self.closeFlag == False or self.flag == False): #如果中途退出，则不在执行脚本了
+                logger.info("scripts exit")
+                return True
 
             self.nowCmdLog = s[i]
             logger.info(self.nowCmdLog)
@@ -125,12 +147,13 @@ class Runner(threading.Thread):
 
             elif(taskType == "keyboard"):
                 if(sta == "down"):
-                    pyautogui.keyDown(msg)
+                    #pyautogui.keyDown(msg)
+                    pyautogui.keyDown(keyDict[msg])
                 elif(sta == "up"):
-                    pyautogui.keyUp(msg)
+                    pyautogui.keyUp(keyDict[msg])
                 elif(sta == "txt"):
                     pyautogui.typewrite(msg)     
             else:
                 logger.error("script error:taskType")
-                pass
+                
 

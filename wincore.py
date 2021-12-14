@@ -23,12 +23,11 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.eventTagTime = 0    #保存上一次鼠标或者键盘事件时间
         self.creatScripts = False #是否开始录制标志位
         self.record = []  #缓存录制脚本
-        self.lastKey = ""
 
         self.setWindowTitle('自动化工具')
         self.statusBar=QStatusBar()
         self.setStatusBar(self.statusBar)
-        self.statusBar.showMessage('>_< >_< >_< >_<',5000)   
+        self.statusBar.showMessage('这是一个鼠标键盘自动化执行工具',5000)   
 
         if(os.path.exists('./scripts') ==False):#如果没有这个而文件夹
             os.mkdir("scripts")
@@ -67,7 +66,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         #开启监听
         hm = pyWinhook.HookManager()
         #键盘
-        hm.KeyDown = self.onKeyboardEvent
+        hm.KeyAll = self.onKeyboardEvent
         hm.HookKeyboard()
         # 监听鼠标 
         hm.MouseAll = self.onMouseEvent   
@@ -83,6 +82,9 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         return self.comboBox.currentText()
 
     def buttonStart(self):
+        if(self.runnerThread.getStatus() == True):
+            self.statusBar.showMessage('已经在运行，勿重复点击',3000)
+            return True       
         self.showMinimized()# 最小状态
         self.statusBar.showMessage('scripts start',3000)   
         self.runnerThread.setScritpsPath(self.getScriptsPath())
@@ -93,10 +95,12 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def buttonStop(self):
         self.activateWindow() #恢复状态
         self.runnerThread.suspend()
-        self.statusBar.showMessage('scripts stop',3000)   
+        self.statusBar.showMessage('scripts stop',3000)  
+
     def buttonCapture(self):
         self.Captureflag = True
         self.statusBar.showMessage('Capture start',3000)   
+
     def buttonCaptureStop(self):
         self.Captureflag = False
         self.statusBar.showMessage('Capture stop',3000)   
@@ -143,15 +147,16 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         return int(time.time() * 1000)
     # 监听键盘事件
     def onKeyboardEvent(self,event):
+        #print('MessageName:',event.MessageName)
         if(event.Key == "F9"):#启动脚本
-            print("start!")
+            logger.info("start!")
             self.showMinimized()
             self.buttonStart()
         elif(event.Key == "F10"):#停止脚本
             self.showNormal()
             self.activateWindow()
             self.buttonStop()
-            print("stop!")
+            logger.info("stop!")
         elif(event.Key == "F8"):#抓取鼠标位置
             self.setMousePos(self.nowMousePos)
         elif(event.Key =="F7"):#停止录制
@@ -174,26 +179,17 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
                     keyType = "up"
                 else:
                     return #其他类型不处理
-                #发现个问题，如果单纯录制没有up的操作，实际打字没问题，但是在WOW中没法用
-                #这里添加逻辑，当按键发生变化则添加一个up
                 log = "record add: " + str(delay) + " " + keyType + " " + event.Key
                 logger.debug(log)
-                logger.debug("self.lastKey="+self.lastKey)
-                if((self.lastKey=="") or (self.lastKey == event.Key)):
-                    self.record.append([delay, 'keyboard', keyType, event.Key])
-                else:
-                    self.record.append([1, 'keyboard', "up", self.lastKey])
-                    self.record.append([delay, 'keyboard', keyType, event.Key])
-                self.lastKey = event.Key
-                
-            
-
+                self.record.append([delay, 'keyboard', keyType, event.Key])               
         return True
 
     # 监听到鼠标事件调用
     def onMouseEvent(self,event):
         #log = "mouse record add:" + "00" + " " + event.MessageName + " " + str(event.Position)
         #logger.debug(log)
+        if(self.Captureflag == True):
+            self.lineEdit_2.setText(str(event.Position))
         if(self.creatScripts):
             if(not self.record): #如果是新脚本则默认第一个指令前延时5秒
                 delay = 5000
@@ -209,7 +205,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
             # 修改类型
             if(event.MessageName == "mouse left down"):
                 mouseType = "left down"
-            elif(event.MessageName == "mouse left up"): # 妈蛋监听键盘压根儿就没有up
+            elif(event.MessageName == "mouse left up"):
                 mouseType = "left up"
             elif(event.MessageName == "mouse move"):
                 mouseType = "move"
