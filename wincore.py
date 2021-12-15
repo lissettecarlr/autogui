@@ -11,23 +11,49 @@ import pyWinhook
 import pythoncom
 import time
 import json
+import configparser
 
 class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def __init__(self):
         super(wincore,self).__init__()
         self.setupUi(self)
         self.init()
+        
+    def readConfig(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read('config.ini')
+            self.mouseCmdInterval = config.getint('winCfg', 'mouseCmdInterval')
+            self.shortcutKeys={'start':config.get('winCfg', 'startKey'),'stop':config.get('winCfg', 'stopKey'),'capture':config.get('winCfg', 'captureKey'),"stopRecord":config.get('winCfg', 'stopRecordKey')}
+            # 需要修改UI
+        except:
+            logger.error("read config error")
+            self.mouseCmdInterval = 200
+            self.shortcutKeys={'start':'F9','stop':'F10','capture':'F8',"stopRecord":'F7'}
+
+        logger.info(self.shortcutKeys['start']+" "+self.shortcutKeys['stop'])
+        logger.info(self.shortcutKeys['capture']+" "+self.shortcutKeys['stopRecord'])
+        
+
     def init(self):
         self.nowMousePos = ""
         self.Captureflag = False #实时抓取鼠标位置标志位
         self.eventTagTime = 0    #保存上一次鼠标或者键盘事件时间
         self.creatScripts = False #是否开始录制标志位
         self.record = []  #缓存录制脚本
+        self.shortcutKeys={} #保存快捷键
+
+        self.readConfig()
 
         self.setWindowTitle('自动化工具')
         self.statusBar=QStatusBar()
         self.setStatusBar(self.statusBar)
         self.statusBar.showMessage('这是一个鼠标键盘自动化执行工具',5000)   
+        #根据快捷键显示UI
+        self.pushButton.setText("开始("+self.shortcutKeys['start'].replace("\"","")+")")
+        self.pushButton_2.setText("停止("+self.shortcutKeys['stop'].replace("\"","")+")")
+        self.pushButton_6.setText("停止("+self.shortcutKeys['stopRecord'].replace("\"","")+")")
+        self.label_6.setText(self.shortcutKeys['capture'].replace("\"","")+"单次抓取")
 
         if(os.path.exists('./scripts') ==False):#如果没有这个而文件夹
             os.mkdir("scripts")
@@ -35,7 +61,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
 
         for file in os.listdir("./scripts"):
             logger.debug(file)
-            self.comboBox.addItem("./scripts/"+file)
+            if(file.endswith(".txt")):#只加载txt文件
+                self.comboBox.addItem("./scripts/"+file)
     
         # 限制输入正整数
         reg = QRegExp("^[0-9]*[1-9][0-9]*$")
@@ -95,6 +122,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def buttonStop(self):
         self.activateWindow() #恢复状态
         self.runnerThread.suspend()
+        self.timer.stop()
         self.statusBar.showMessage('scripts stop',3000)  
 
     def buttonCapture(self):
@@ -134,8 +162,10 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.pushButton_5.setEnabled(True)
         #录制完刷新一下下拉菜单
         self.comboBox.clear()
+
         for file in os.listdir("./scripts"):
-            self.comboBox.addItem("./scripts/"+file)
+            if(file.endswith(".txt")):#只加载txt文件
+                self.comboBox.addItem("./scripts/"+file)
 
     def closeEvent(self,event):
         self.runnerThread.close()
@@ -148,22 +178,22 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     # 监听键盘事件
     def onKeyboardEvent(self,event):
         #print('MessageName:',event.MessageName)
-        if(event.Key == "F9"):#启动脚本
+        if(event.Key == self.shortcutKeys['start'].replace("\"","")):#启动脚本
             logger.info("start!")
             self.showMinimized()
             self.buttonStart()
-        elif(event.Key == "F10"):#停止脚本
+        elif(event.Key == self.shortcutKeys['stop'].replace("\"","")):#停止脚本
             self.showNormal()
             self.activateWindow()
             self.buttonStop()
             logger.info("stop!")
-        elif(event.Key == "F8"):#抓取鼠标位置
+        elif(event.Key == self.shortcutKeys['capture'].replace("\"","")):#抓取鼠标位置
             self.setMousePos(self.nowMousePos)
-        elif(event.Key =="F7"):#停止录制
+        elif(event.Key ==self.shortcutKeys['stopRecord'].replace("\"","")):#停止录制
             self.showNormal()
             self.activateWindow()
             self.buttonRecordStop()
-        else: # 排除快捷键
+        else: # 排除快捷键                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
             if(self.creatScripts):
                 if(not self.record): #如果是新脚本则默认第一个指令前延时5秒
                     delay = 5000
@@ -188,15 +218,16 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def onMouseEvent(self,event):
         #log = "mouse record add:" + "00" + " " + event.MessageName + " " + str(event.Position)
         #logger.debug(log)
+        self.nowMousePos = str(event.Position)
         if(self.Captureflag == True):
-            self.lineEdit_2.setText(str(event.Position))
+            self.setMousePos(str(event.Position))
         if(self.creatScripts):
             if(not self.record): #如果是新脚本则默认第一个指令前延时5秒
                 delay = 5000
             else:
                 delay = self.getNowTime() - self.eventTagTime
             #这里需要现在鼠标移动的采集率
-            if(event.MessageName=="mouse move" and delay<=200):
+            if(event.MessageName=="mouse move" and delay<=self.mouseCmdInterval):
                     return True
                 
             self.eventTagTime = self.getNowTime()

@@ -5,7 +5,7 @@ import time
 import threading
 import json
 from loguru import logger
-
+import configparser
 
 keyDict={
 '0':'0', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5', '6':'6', '7':'7', '8':'8', '9':'9',
@@ -21,6 +21,7 @@ keyDict={
 }
 
 
+
 class Runner(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -29,6 +30,15 @@ class Runner(threading.Thread):
         self.closeFlag = True # 退出标志位
         self.scriptsPath = ""
         self.nowCmdLog=""
+        try:
+            #  实例化configParser对象
+            config = configparser.ConfigParser()
+            # -read读取ini文件
+            config.read('config.ini')
+            self.pifConfidence = config.getfloat('runCfg', 'Confidence')
+        except:
+            logger.error("read config error")
+            self.pifConfidence = 0.7
 
     def run(self):
         logger.info('run')
@@ -152,7 +162,22 @@ class Runner(threading.Thread):
                 elif(sta == "up"):
                     pyautogui.keyUp(keyDict[msg])
                 elif(sta == "txt"):
-                    pyautogui.typewrite(msg)     
+                    pyautogui.typewrite(msg)  
+            elif(taskType == "pic"):
+                #logger.debug(msg)
+                picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
+                if(picPos == None):
+                    logger.error("not find pic : " + msg)
+                    continue
+                if(sta == "left click"):
+                    pyautogui.click(picPos.x,picPos.y,button='left') 
+                elif(sta == "right click"):
+                    pyautogui.click(picPos.x,picPos.y,button='night')
+                elif(sta == "left D click"):
+                    pyautogui.doubleClick(picPos.x,picPos.y)
+                else:
+                    logger.error("script error:sta")
+                
             else:
                 logger.error("script error:taskType")
                 

@@ -1,8 +1,6 @@
-
 import sys
 import pyWinhook
 import pythoncom
-
 import win32api
 import run
 import wincore
@@ -52,7 +50,6 @@ class autogui():
             # mainHander.nowMousePosition = event.Position
             # print(event.Position)
         return True
-
 
            
 if __name__=='__main__':
