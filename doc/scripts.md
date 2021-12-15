@@ -29,5 +29,5 @@
 ```
 图片示例：
 ```
- [3000,"pic","left click","./scripts/tp1.png"],
+ [3000,"pic","left click","./scripts/tp1.png"]
 ```

@@ -64,10 +64,12 @@ pip debug --verbose
 
 
 按键示例：
+
 ```
  [5000,"keyboard","down","Lwin"],
  [81,"keyboard","up","Lwin"],
 ```
+
 鼠标示例：
 ```
  [708,"mouse","move",[1007,546]],
@@ -78,6 +80,7 @@ pip debug --verbose
  [156,"mouse","left down",[918,642]],
  [107,"mouse","left up",[918,642]],
 ```
+
 图片示例：
 ```
  [3000,"pic","left click","./scripts/tp1.png"]
