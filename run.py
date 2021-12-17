@@ -7,6 +7,7 @@ import json
 from loguru import logger
 import configparser
 
+#由于录制按键值和操作接口的参数存在差异，所以需要个对照表
 keyDict={
 '0':'0', '1':'1', '2':'2', '3':'3', '4':'4', '5':'5', '6':'6', '7':'7', '8':'8', '9':'9',
 'A':'a', 'B':'b', 'C':'c', 'D':'d', 'E':'e', 'F':'f', 'G':'g', 'H':'h', 'I':'i', 'J':'j', 'K':'k', 'L':'l', 'M':'m', 
@@ -20,16 +21,14 @@ keyDict={
 'Lwin':'winleft','Rwin':'winright'
 }
 
-
-
 class Runner(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.flag= False # 标志运行(T)和停止(F)
         self.count = 1  # 执行次数
-        self.closeFlag = True # 退出标志位
-        self.scriptsPath = ""
-        self.nowCmdLog=""
+        self.closeFlag = True # 退出标志位，退出(F)
+        self.scriptsPath = "" # 脚本地址
+        self.nowCmdLog="" # 当前执行的命令
         try:
             #  实例化configParser对象
             config = configparser.ConfigParser()

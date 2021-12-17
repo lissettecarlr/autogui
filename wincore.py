@@ -77,6 +77,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.pushButton_4.clicked.connect(self.buttonCaptureStop)
         self.pushButton_5.clicked.connect(self.buttonRecord)
         self.pushButton_6.clicked.connect(self.buttonRecordStop)
+        #菜单事件
+        self.creatExample.triggered.connect(self.creatExampleScripts)
         
         # 实例脚本执行器
         self.runnerThread = run.Runner()
@@ -139,7 +141,6 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         #最小化
         self.showMinimized()
         self.statusBar.showMessage('record start',3000)   
-
 
     def buttonRecordStop(self):
         self.statusBar.showMessage('record stop',3000)  
@@ -250,7 +251,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
             self.record.append([delay, 'mouse', mouseType, event.Position])
         return True
 
-
+    def creatExampleScripts(self):
+        pass
 
 def windowsOpen(sys):
     app=QtWidgets.QApplication(sys.argv)

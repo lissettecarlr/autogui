@@ -117,14 +117,37 @@ class Ui_MainWindow(object):
         self.pushButton_6.setObjectName("pushButton_6")
         self.horizontalLayout_4.addWidget(self.pushButton_6)
         MainWindow.setCentralWidget(self.centralwidget)
+
+        #菜单
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 416, 22))
         self.menubar.setObjectName("menubar")
+        #菜单按钮
+        self.menu = QtWidgets.QMenu(self.menubar)
+        self.menu.setObjectName("menu")
+        self.menuHelp = QtWidgets.QMenu(self.menubar)
+        self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menubar)
+        #状态栏
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        #菜单按钮子项
+        self.openCfg = QtWidgets.QAction(MainWindow)
+        self.openCfg.setObjectName("openCfg")
+        self.setCfg = QtWidgets.QAction(MainWindow)
+        self.setCfg.setObjectName("setCfg")
+        self.creatExample = QtWidgets.QAction(MainWindow)
+        self.setCfg.setObjectName("ctS")
 
+        self.menu.addAction(self.openCfg)
+        self.menu.addAction(self.setCfg)
+        self.menuHelp.addAction(self.creatExample)
+
+        self.menubar.addAction(self.menu.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
+        
+        
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -142,3 +165,9 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "脚本命名："))
         self.pushButton_5.setText(_translate("MainWindow", "录制"))
         self.pushButton_6.setText(_translate("MainWindow", "停止(F7)"))
+
+        self.menu.setTitle(_translate("MainWindow", "菜单"))
+        self.menuHelp.setTitle(_translate("MainWindow", "帮助"))
+        self.openCfg.setText(_translate("MainWindow", "打开配置文件"))
+        self.setCfg.setText(_translate("MainWindow", "应用配置文件"))
+        self.creatExample.setText(_translate("MainWindow", "创建示例脚本"))

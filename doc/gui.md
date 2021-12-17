@@ -98,7 +98,7 @@ self.setWindowTitle('自用的蓝牙工具')
         self.lineEdit.setValidator(LE1Validator)
 ```
 
-控制窗体
+* 控制窗体
 ```
 self.showMinimized()# 最小状态
 self.showNormal()#正常态
