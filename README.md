@@ -43,13 +43,16 @@ pip debug --verbose
 
 ### 界面
 * 下载exe直接点开即用，或者安装环境后执行python .\autogui.py
+
 界面：
 ![](./pic/p_A.png)
+
 * 第一行为脚本的选择，启动脚本和停止脚本，脚本被保存在执行程序地址下的scripts目录中
 * 第二行显示需要执行脚本的循环次数，需要在开始前修改，运行中修改无效
 * 第三行是为了方便自己写脚本的小工具，用于抓取鼠标点的坐标
 * 第四行为录制功能，填入新脚本名字后点击录制，可以记录所有鼠标和键盘操作（快捷键除外），然后点击F7结束录制，脚本自动保存，可以直接通过第一行选择启用。
 * 可通过编辑config.ini修改快捷键和图片匹配度，没有此文件则使用默认参数
+* 菜单里面可以打开配置文件或者应用配置文件，帮助里面可以生成示例脚本
 
 ### 脚本编写
 ```
@@ -86,12 +89,38 @@ pip debug --verbose
 ```
  [3000,"pic","left click","./scripts/tp1.png"]
 ```
-
-
-
-
+### 打包
+关于用 pyinstaller的打包，之前直接执行命令发现编译出来的百多M，后面使用虚拟环境来打包要小一半。
+* 1安装工具
+```
+pip install pipenv
+```
+* 2建立环境
+```
+pipenv install
+```
+* 3进入环境
+```
+pipenv shell
+```
+* 4安装相关模块
+```
+pip install pyautogui
+pip install pyqt5
+pip install loguru
+pip install .\pk\pyWinhook-1.6.2-cp39-cp39-win_amd64.whl
+pip install pyinstaller
+```
+* 5打包
+```
+pyinstaller -Fw .\autogui.py
+```
 
 ## 版本说明
+
+### V1.2
+增加菜单栏，主要是方便单独使用exe的时候建立配置文件和示例脚本
+压缩了exe文件大小
 
 ### V1.1
 新添加config.ini配置，可以修改快捷键和图像识别度

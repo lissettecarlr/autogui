@@ -1,17 +1,18 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QTimer,QRegExp,QThread,pyqtSignal
-from PyQt5.QtGui import QKeyEvent, QKeySequence,QRegExpValidator
+from PyQt5.QtGui import QRegExpValidator
 from winshell import Ui_MainWindow
 import run
 from loguru import logger
 import os
-import sys
+# import sys
 import pyWinhook
-import pythoncom
+# import pythoncom
 import time
 import json
 import configparser
+import threading
 
 class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def __init__(self):
@@ -21,6 +22,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         
     def readConfig(self):
         try:
+            logger.info("read config.....")
             config = configparser.ConfigParser()
             config.read('config.ini')
             self.mouseCmdInterval = config.getint('winCfg', 'mouseCmdInterval')
@@ -79,7 +81,9 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.pushButton_6.clicked.connect(self.buttonRecordStop)
         #菜单事件
         self.creatExample.triggered.connect(self.creatExampleScripts)
-        
+        self.openCfg.triggered.connect(self.openConfig)
+        self.setCfg.triggered.connect(self.reloadConfig)
+
         # 实例脚本执行器
         self.runnerThread = run.Runner()
         self.runnerThread.start()
@@ -100,6 +104,11 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         # 监听鼠标 
         hm.MouseAll = self.onMouseEvent   
         hm.HookMouse()
+
+    def reloadScriptsList(self):
+        for file in os.listdir("./scripts"):
+            if(file.endswith(".txt")):#只加载txt文件
+                self.comboBox.addItem("./scripts/"+file)
 
     def setCycleCount(self,count):
         self.lineEdit.setText(count)
@@ -252,7 +261,26 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         return True
 
     def creatExampleScripts(self):
-        pass
+        ex = "[\n [5000,\"keyboard\",\"down\",\"1\"],\n [142,\"keyboard\",\"up\",\"1\"]\n]"
+        open("./scripts/example.txt","w").write(ex)
+        self.reloadScriptsList()
+
+    def openConfig(self):
+        if(os.path.exists('config.ini')):
+            thread = threading.Thread(target=openTxt)
+            thread.start()
+        else:
+            logger.info("open config fail,creat")
+            cfg = "[runCfg]\nConfidence = 0.7\n\n[winCfg]\nmouseCmdInterval = 200\nstartKey = \"F9\"\nstopKey = \"F10\"\ncaptureKey = \"F8\"\nstopRecordKey = \"F7\""
+            open("config.ini","w").write(cfg)
+            thread = threading.Thread(target=openTxt)
+            thread.start()
+
+    def reloadConfig(self):
+        self.readConfig()
+
+def openTxt():
+    os.system('config.ini')
 
 def windowsOpen(sys):
     app=QtWidgets.QApplication(sys.argv)
