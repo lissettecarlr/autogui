@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import QTimer,QRegExp,QThread,pyqtSignal
+from PyQt5.QtCore import QTimer,QRegExp
 from PyQt5.QtGui import QRegExpValidator
 from winshell import Ui_MainWindow
 import run
@@ -44,7 +44,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.creatScripts = False #是否开始录制标志位
         self.record = []  #缓存录制脚本
         self.shortcutKeys={} #保存快捷键
-
+        self.lastStatusBarMsg = ""
         self.readConfig()
 
         self.setWindowTitle('自动化工具')
@@ -120,11 +120,11 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         return self.comboBox.currentText()
 
     def buttonStart(self):
-        if(self.runnerThread.getStatus() == True):
+        if(self.runnerThread.getFlag() == True):
             self.statusBar.showMessage('已经在运行，勿重复点击',3000)
             return True       
         self.showMinimized()# 最小状态
-        self.statusBar.showMessage('scripts start',3000)   
+        #self.statusBar.showMessage('scripts start',3000)   
         self.runnerThread.setScritpsPath(self.getScriptsPath())
         self.runnerThread.setCount(int(self.getCycleCount()))
         self.runnerThread.go()
@@ -134,31 +134,31 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.activateWindow() #恢复状态
         self.runnerThread.suspend()
         self.timer.stop()
-        self.statusBar.showMessage('scripts stop',3000)  
+        self.statusBar.showMessage('已手动停止脚本',3000)  
 
     def buttonCapture(self):
         self.Captureflag = True
-        self.statusBar.showMessage('Capture start',3000)   
+        self.statusBar.showMessage('开始抓取',3000)   
 
     def buttonCaptureStop(self):
         self.Captureflag = False
-        self.statusBar.showMessage('Capture stop',3000)   
+        self.statusBar.showMessage('停止抓取',3000)   
 
     def buttonRecord(self):
         self.creatScripts = True
         self.pushButton_5.setEnabled(False)
         #最小化
         self.showMinimized()
-        self.statusBar.showMessage('record start',3000)   
+        self.statusBar.showMessage('开始录制脚本',3000)   
 
     def buttonRecordStop(self):
-        self.statusBar.showMessage('record stop',3000)  
+        self.statusBar.showMessage('停止录制',3000)  
         if(not self.record):#如果啥也没录到则直接退出
             return True
         # 根据输入文字建立新的脚本
         name = self.lineEdit_3.text()
         if(name == ""):
-            self.statusBar.showMessage('new scripts name error',3000) 
+            self.statusBar.showMessage('脚本未命名，使用默认名称',3000) 
             name = "newScripts"
         path = "./scripts/"+name+".txt"
 
@@ -182,6 +182,10 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     
     def statusUpdate(self):
         self.label_3.setText( str(self.runnerThread.getNowCmdLog()))
+        # 更新消息提示栏
+        if(self.runnerThread.getStatus()!="" and self.runnerThread.getStatus()!=self.lastStatusBarMsg):
+            self.lastStatusBarMsg = self.runnerThread.getStatus()
+            self.statusBar.showMessage(self.lastStatusBarMsg,3000)
 
     def getNowTime(self):
         return int(time.time() * 1000)

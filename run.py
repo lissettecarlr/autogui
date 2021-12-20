@@ -29,6 +29,7 @@ class Runner(threading.Thread):
         self.closeFlag = True # 退出标志位，退出(F)
         self.scriptsPath = "" # 脚本地址
         self.nowCmdLog="" # 当前执行的命令
+        self.status = ""
         try:
             #  实例化configParser对象
             config = configparser.ConfigParser()
@@ -56,6 +57,7 @@ class Runner(threading.Thread):
                             nowCount =0
                     #执行完毕,恢复默认
                     self.flag=False    
+                    self.status = "执行完成"
                     logger.info("scripts over")
             else:
                 time.sleep(1)
@@ -88,8 +90,14 @@ class Runner(threading.Thread):
     def getNowCmdLog(self):
         return self.nowCmdLog
 
-    def getStatus(self):
+    def getFlag(self):
         return self.flag
+
+    def getStatus(self):
+        #return self.flag
+        return self.status
+
+    #def get
 
     #开始执行脚本
     def runScripts(self):
@@ -100,13 +108,16 @@ class Runner(threading.Thread):
             lines = open(self.scriptsPath, 'r', encoding='utf8').readlines()
         except Exception as e:
             logger.error("open fail1"+e)
+            self.status = "脚本打开失败，尝试切换编码方式"
             try:
                 lines = open(self.scriptsPath, 'r', encoding='gbk').readlines()
             except Exception as e:
                 logger.error("open fail2"+e)
+                self.status = "脚本打开失败，停止执行"
+                return True
 
         #print(lines)
-
+        self.status = "脚本开始执行"
         for line in lines:
             # 去注释
             if '//' in line:
@@ -137,47 +148,56 @@ class Runner(threading.Thread):
             msg = s[i][3]
             #print("debug : msg = "+msg)
             time.sleep(delay / 1000.0)
+            # 休眠前后都添加个退出
+            if(self.closeFlag == False or self.flag == False): #如果中途退出，则不在执行脚本了
+                logger.info("scripts exit")
+                return True
+            try:
+                if(taskType == "mouse"):
+                    x,y = msg
+                    if(sta == "left down"):
+                        #pyautogui.click(x,y,1,1,'left') #X,Y，点击次数，次数间隔，方式
+                        pyautogui.mouseDown(x, y, 'left')
+                    elif(sta == "right down"):
+                        pyautogui.mouseDown(x, y, 'right')
+                    elif(sta == "left up"):
+                        pyautogui.mouseUp(x, y, 'left')
+                    elif(sta == "right up"):
+                        pyautogui.mouseUp(x, y, 'right')
+                    elif(sta == "move"):
+                        pyautogui.moveTo(x, y)
+                    else:
+                        logger.error("mouse sta error!")
 
-            if(taskType == "mouse"):
-                x,y = msg
-                if(sta == "left down"):
-                    #pyautogui.click(x,y,1,1,'left') #X,Y，点击次数，次数间隔，方式
-                    pyautogui.mouseDown(x, y, 'left')
-                elif(sta == "right down"):
-                    pyautogui.mouseDown(x, y, 'right')
-                elif(sta == "left up"):
-                    pyautogui.mouseUp(x, y, 'left')
-                elif(sta == "right up"):
-                    pyautogui.mouseUp(x, y, 'right')
-                elif(sta == "move"):
-                     pyautogui.moveTo(x, y)
+                elif(taskType == "keyboard"):
+                    if(sta == "down"):
+                        #pyautogui.keyDown(msg)
+                        pyautogui.keyDown(keyDict[msg])
+                    elif(sta == "up"):
+                        pyautogui.keyUp(keyDict[msg])
+                    elif(sta == "txt"):
+                        pyautogui.typewrite(msg)  
+                elif(taskType == "pic"):
+                    #logger.debug(msg)
+                    picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
+                    if(picPos == None):
+                        logger.error("not find pic : " + msg)
+                        continue
+                    if(sta == "left click"):
+                        pyautogui.click(picPos.x,picPos.y,button='left') 
+                    elif(sta == "right click"):
+                        pyautogui.click(picPos.x,picPos.y,button='night')
+                    elif(sta == "left D click"):
+                        pyautogui.doubleClick(picPos.x,picPos.y)
+                    else:
+                        logger.error("script error:sta")
+                        self.status = "当前语句执行错误，状态未知"             
                 else:
-                    logger.error("mouse sta error!")
-
-            elif(taskType == "keyboard"):
-                if(sta == "down"):
-                    #pyautogui.keyDown(msg)
-                    pyautogui.keyDown(keyDict[msg])
-                elif(sta == "up"):
-                    pyautogui.keyUp(keyDict[msg])
-                elif(sta == "txt"):
-                    pyautogui.typewrite(msg)  
-            elif(taskType == "pic"):
-                #logger.debug(msg)
-                picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
-                if(picPos == None):
-                    logger.error("not find pic : " + msg)
-                    continue
-                if(sta == "left click"):
-                    pyautogui.click(picPos.x,picPos.y,button='left') 
-                elif(sta == "right click"):
-                    pyautogui.click(picPos.x,picPos.y,button='night')
-                elif(sta == "left D click"):
-                    pyautogui.doubleClick(picPos.x,picPos.y)
-                else:
-                    logger.error("script error:sta")
-                
-            else:
-                logger.error("script error:taskType")
+                    logger.error("script error:taskType")
+                    self.status = "当前语句执行错误，类型未知"
+            except:
+                self.suspend()
+                self.status = "当前语句执行错误，已停止"
+                logger.error("script error")
                 
 
