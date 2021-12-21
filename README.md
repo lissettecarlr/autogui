@@ -1,12 +1,13 @@
 # autogui
 
-根据脚本实现对应的鼠标键盘操作工具
+类似按键精灵，可以根据脚本实现对鼠标键盘的自动化操作。脚本可以通过录制也可以自己编写。
+源码通过python编写，使用模块pyautogui来操作键盘鼠标和识别图片，使用pyWinhook模块来监听鼠标和键盘实现快捷键和录制的功能，使用PYQT5来实现界面。
 
 
 ## 环境
+如果需要通过源码执行或者想自定义修改则需要安装以下的包，python使用的是3.9.6
 
 * pyautogui
-用来控制鼠标键盘输出，直接pip安装即可
 ```
 pip install pyautogui
 ```
@@ -15,13 +16,14 @@ pip install pyautogui
 ```
 pip install pyqt5
 ```
-* 日志
+
+* loguru
 ```
 pip install loguru
 ```
 
 * pyWinhook
-用于监听鼠标键盘的输入，直接按照会报错，需要手动去下载。
+用于监听鼠标键盘的输入，直接安装会报错，需要手动去下载。
 下列命令是查看设备支持的版本
 ```
 pip debug --verbose
@@ -30,10 +32,11 @@ pip debug --verbose
 ```
  pip install .\pyWinhook-1.6.2-cp39-cp39-win_amd64.whl
 ```
+在pk文件夹中已经放置了我使用的安装包
 
 ## 最新版本的使用
 
-### 命令行
+### 不需要界面直接命令行运行脚本
 * 如果使用命令行则需要安装上面的环境
 示例：
 ```
@@ -63,7 +66,7 @@ pip debug --verbose
 * 参数3：根据上面命令不同此处也不同
     如果是按键：down/up/txt 按下/抬起/输入文本
     如果是鼠标：left down/left up/right down/right up/move
-    如果是图片：left click/right click/left D click 
+    如果是图片：left click/right click/left D click 左单击/右单击/左双击 
 * 参数4：如果是按键则其值就为键值或文本，如果是鼠标则值为横坐标，纵坐标，如果是图片，则是其地址
 
 
@@ -89,6 +92,7 @@ pip debug --verbose
 ```
  [3000,"pic","left click","./scripts/tp1.png"]
 ```
+
 ### 打包
 关于用 pyinstaller的打包，之前直接执行命令发现编译出来的百多M，后面使用虚拟环境来打包要小一半。
 * 1安装工具

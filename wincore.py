@@ -191,7 +191,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         return int(time.time() * 1000)
     # 监听键盘事件
     def onKeyboardEvent(self,event):
-        #print('MessageName:',event.MessageName)
+        #print('MessageName:',event.MessageName,'kk:',event.Key)
         if(event.Key == self.shortcutKeys['start'].replace("\"","")):#启动脚本
             logger.info("start!")
             self.showMinimized()
@@ -215,13 +215,14 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
                     delay = self.getNowTime() - self.eventTagTime
                     # [1000,"keyboard","down","a"],
                 self.eventTagTime = self.getNowTime()
-
+                
                 #获取类型
-                if(event.MessageName == "key down"):
+                if(event.MessageName == "key down" or event.MessageName == "key sys down"):  # alt的类型是 key sys down
                     keyType = "down"
-                elif(event.MessageName == "key up"): # 妈蛋监听键盘压根儿就没有up
+                elif(event.MessageName == "key up"): 
                     keyType = "up"
                 else:
+                    logger.debug("this MessageName not save ",event.MessageName)
                     return #其他类型不处理
                 log = "record add: " + str(delay) + " " + keyType + " " + event.Key
                 logger.debug(log)

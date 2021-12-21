@@ -168,6 +168,7 @@ class Runner(threading.Thread):
                         pyautogui.moveTo(x, y)
                     else:
                         logger.error("mouse sta error!")
+                        self.status = "当前语句执行错误，状态未知"
 
                 elif(taskType == "keyboard"):
                     if(sta == "down"):
