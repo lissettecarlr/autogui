@@ -45,7 +45,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.creatScripts = False #是否开始录制标志位
         self.record = []  #缓存录制脚本
         self.shortcutKeys={} #保存快捷键
-        self.lastStatusBarMsg = ""
+        #self.lastStatusBarMsg = ""
         self.readConfig()
 
         self.setWindowTitle('自动化工具')
@@ -185,9 +185,19 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def statusUpdate(self):
         self.label_3.setText( str(self.runnerThread.getNowCmdLog()))
         # 更新消息提示栏
-        if(self.runnerThread.getStatus()!="" and self.runnerThread.getStatus()!=self.lastStatusBarMsg):
-            self.lastStatusBarMsg = self.runnerThread.getStatus()
-            self.statusBar.showMessage(self.lastStatusBarMsg,3000)
+        #if(self.runnerThread.getStatus()!="" and self.runnerThread.getStatus()!=self.lastStatusBarMsg):
+            #self.lastStatusBarMsg = self.runnerThread.getStatus()
+            #self.statusBar.showMessage(self.lastStatusBarMsg,3000)
+        msg = self.runnerThread.getStatus() 
+        if(msg != ""):
+            self.statusBar.showMessage(msg,3000)
+            if(msg.find("[E]")>=0): #由于错误停止运行
+                self.showNormal()
+                self.activateWindow()
+            if(msg.find("[O]")>=0): #执行完成正常停止
+                self.showNormal()
+                self.activateWindow()
+            
 
     def getNowTime(self):
         return int(time.time() * 1000)

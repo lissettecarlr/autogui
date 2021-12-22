@@ -1,5 +1,7 @@
 # 该文件用于脚本的执行和停止
 
+from os import terminal_size
+from PIL.Image import NONE
 import pyautogui
 import time
 import threading
@@ -57,7 +59,8 @@ class Runner(threading.Thread):
                             nowCount =0
                     #执行完毕,恢复默认
                     self.flag=False    
-                    self.status = "执行完成"
+                    if(self.status.find("[E]") == -1):
+                        self.status = "[O]执行完成"
                     logger.info("scripts over")
             else:
                 time.sleep(1)
@@ -95,7 +98,9 @@ class Runner(threading.Thread):
 
     def getStatus(self):
         #return self.flag
-        return self.status
+        temp = self.status
+        self.status = ""
+        return temp
 
     #def get
 
@@ -113,7 +118,8 @@ class Runner(threading.Thread):
                 lines = open(self.scriptsPath, 'r', encoding='gbk').readlines()
             except Exception as e:
                 logger.error("open fail2"+e)
-                self.status = "脚本打开失败，停止执行"
+                self.status = "[E]脚本打开失败，停止执行"
+                self.suspend()
                 return True
 
         #print(lines)
@@ -128,13 +134,27 @@ class Runner(threading.Thread):
             content += line
         content = content.replace('],\n]', ']\n]').replace('],]', ']]')
         # logger.info(content)
-        s = json.loads(content)
+        #如果脚本错误这里也会报错
+        try:
+            s = json.loads(content)
+        except:
+            self.status = "[E]脚本错误，请检查语法"
+            self.suspend()
+            logger.error("scripts error")
+            return True
+
         steps = len(s)
+        #是否执行当前命令的标志位
+        isContinue = False
         #执行脚本中的每一行
         for i in range(steps):
             if(self.closeFlag == False or self.flag == False): #如果中途退出，则不在执行脚本了
                 logger.info("scripts exit")
                 return True
+            # 是否不执行当前命令    
+            if(isContinue == True):
+                isContinue = False
+                continue
 
             self.nowCmdLog = s[i]
             logger.info(self.nowCmdLog)
@@ -192,13 +212,28 @@ class Runner(threading.Thread):
                         pyautogui.doubleClick(picPos.x,picPos.y)
                     else:
                         logger.error("script error:sta")
-                        self.status = "当前语句执行错误，状态未知"             
+                        self.status = "当前语句执行错误，状态未知"  
+                # 判断图标是否存在的条件语句                   
+                elif(taskType == "ifpic"):
+                    picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
+                    if(picPos == None):
+                        logger.error("not find pic : " + msg)
+                    if(sta == "True" and picPos != None):
+                        logger.info("ifpic is OK1")
+                        isContinue = False
+                    elif(sta == "False" and picPos == None):
+                        logger.info("ifpic is OK2")
+                        isContinue = False
+                    else:
+                        logger.info("ifpic is NOT")
+                        isContinue = True
                 else:
                     logger.error("script error:taskType")
                     self.status = "当前语句执行错误，类型未知"
+                
             except:
                 self.suspend()
-                self.status = "当前语句执行错误，已停止"
+                self.status = "[E]当前语句执行错误，已停止"
                 logger.error("script error")
                 
 
