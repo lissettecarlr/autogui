@@ -123,3 +123,37 @@ pyautogui.locateCenterOnScreen('help.png')
 ```
 list(pyautogui.locateAllOnScreen('help.png'))
 ```
+
+* 获取图片坐标
+```
+picPos=pyautogui.locateCenterOnScreen(msg,confidence=0.7)
+```
+当使用confidence参数的时候需要安装opencv，不引入python执行时就可以用了
+
+```
+pip install opencv-python
+```
+
+引入
+```
+import cv2
+```
+如果引入报错
+```
+ImportError: ERROR: recursion is detected during loading of "cv2" binary extensions. Check OpenCV installation.
+[21160] Failed to execute script 'autogui' due to unhandled exception!
+```
+卸载
+```
+pip uninstall opencv-python
+pip uninstall opencv-contrib-python
+```
+去python\Lib\site-packages里面找vc2文件夹删掉
+再安装
+```
+pip install opencv-python
+```
+打包的时候使用
+```
+pyinstaller  .\autogui.py --paths="C:\Users\dell\AppData\Local\Programs\Python\Python39\Lib\site-packages\cv2"
+```

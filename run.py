@@ -1,12 +1,12 @@
 # 该文件用于脚本的执行和停止
 
-from os import terminal_size
 import pyautogui
 import time
 import threading
 import json
 from loguru import logger
 import configparser
+import cv2
 
 #由于录制按键值和操作接口的参数存在差异，所以需要个对照表
 keyDict={
@@ -63,7 +63,6 @@ class Runner(threading.Thread):
                     logger.info("scripts over")
             else:
                 time.sleep(1)
-                pass
             if(self.closeFlag == False):
                 break
         logger.info('end')
@@ -171,9 +170,9 @@ class Runner(threading.Thread):
             if(self.closeFlag == False or self.flag == False): #如果中途退出，则不在执行脚本了
                 logger.info("scripts exit")
                 return True
-            try:
-                if(taskType == "mouse"):
-                    x,y = msg
+            if(taskType == "mouse"):
+                x,y = msg
+                try:
                     if(sta == "left down"):
                         #pyautogui.click(x,y,1,1,'left') #X,Y，点击次数，次数间隔，方式
                         pyautogui.mouseDown(x, y, 'left')
@@ -188,8 +187,14 @@ class Runner(threading.Thread):
                     else:
                         logger.error("mouse sta error!")
                         self.status = "当前语句执行错误，状态未知"
+                except:
+                    self.suspend()
+                    self.status = "[E]鼠标语句执行错误，已停止"
+                    logger.error("mouse script error")
+                    return True
 
-                elif(taskType == "keyboard"):
+            elif(taskType == "keyboard"):
+                try:
                     if(sta == "down"):
                         #pyautogui.keyDown(msg)
                         pyautogui.keyDown(keyDict[msg])
@@ -197,42 +202,58 @@ class Runner(threading.Thread):
                         pyautogui.keyUp(keyDict[msg])
                     elif(sta == "txt"):
                         pyautogui.typewrite(msg)  
-                elif(taskType == "pic"):
-                    #logger.debug(msg)
+                except:
+                    self.suspend()
+                    self.status = "[E]按键语句执行错误，已停止"
+                    logger.error("keyboard script error")
+                    return True
+
+            elif(taskType == "pic"):
+                #logger.debug(msg)
+
+                try:
                     picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
-                    if(picPos == None):
-                        logger.error("not find pic : " + msg)
-                        continue
-                    if(sta == "left click"):
-                        pyautogui.click(picPos.x,picPos.y,button='left') 
-                    elif(sta == "right click"):
-                        pyautogui.click(picPos.x,picPos.y,button='night')
-                    elif(sta == "left D click"):
-                        pyautogui.doubleClick(picPos.x,picPos.y)
-                    else:
-                        logger.error("script error:sta")
-                        self.status = "当前语句执行错误，状态未知"  
-                # 判断图标是否存在的条件语句                   
-                elif(taskType == "ifpic"):
-                    picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
-                    if(picPos == None):
-                        logger.error("not find pic : " + msg)
-                    if(sta == "True" and picPos != None):
-                        logger.info("ifpic is OK1")
-                        isContinue = False
-                    elif(sta == "False" and picPos == None):
-                        logger.info("ifpic is OK2")
-                        isContinue = False
-                    else:
-                        logger.info("ifpic is NOT")
-                        isContinue = True
+                except:
+                    self.suspend()
+                    self.status = "[E]寻图语句执行错误，已停止"
+                    logger.error("pic script error")
+                    return True
+
+                if(picPos == None):
+                    logger.error("not find pic : " + msg)
+                    continue
+                if(sta == "left click"):
+                    pyautogui.click(picPos.x,picPos.y,button='left') 
+                elif(sta == "right click"):
+                    pyautogui.click(picPos.x,picPos.y,button='night')
+                elif(sta == "left D click"):
+                    pyautogui.doubleClick(picPos.x,picPos.y)
                 else:
-                    logger.error("script error:taskType")
-                    self.status = "当前语句执行错误，类型未知"
-                
-            except:
-                self.suspend()
-                self.status = "[E]当前语句执行错误，已停止"
-                logger.error("script error")
-                
+                    logger.error("script error:sta")
+                    self.status = "当前语句执行错误，状态未知"  
+            # 判断图标是否存在的条件语句                   
+            elif(taskType == "ifpic"):
+                try:
+                    picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
+                except:
+                    self.suspend()
+                    self.status = "[E]判断图语句执行错误，已停止"
+                    logger.error("ifpic script error")
+                    return True
+                if(picPos == None):
+                    logger.error("not find pic : " + msg)
+                if(sta == "True" and picPos != None):
+                    logger.info("ifpic is OK1")
+                    isContinue = False
+                elif(sta == "False" and picPos == None):
+                    logger.info("ifpic is OK2")
+                    isContinue = False
+                else:
+                    logger.info("ifpic is NOT")
+                    isContinue = True
+            else:
+                logger.error("script error:taskType")
+                self.status = "当前语句执行错误，类型未知"
+
+
 

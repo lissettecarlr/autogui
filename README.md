@@ -3,11 +3,12 @@
 类似按键精灵，可以根据脚本实现对鼠标键盘的自动化操作。脚本可以通过录制也可以自己编写。
 源码通过python编写，使用模块pyautogui来操作键盘鼠标和识别图片，使用pyWinhook模块来监听鼠标和键盘实现快捷键和录制的功能，使用PYQT5来实现界面。
 
+**目前EXE包图片识别暂时无法用，python运行没问题，具体原因正在找**
 
 ## 环境
 如果需要通过源码执行或者想自定义修改则需要安装以下的包，python使用的是3.9.6
 
-* pyautogui
+* pyautogui [文档](https://pyautogui.readthedocs.io/en/latest/screenshot.html)
 ```
 pip install pyautogui
 ```
@@ -20,6 +21,12 @@ pip install pyqt5
 * loguru
 ```
 pip install loguru
+```
+
+* opencv
+图片匹配度参数需要，不安装也不会报错，只是无法使用图片匹配功能
+```
+pip install opencv-python
 ```
 
 * pyWinhook
@@ -143,30 +150,10 @@ pip debug --verbose
 ```
 
 ### 打包
-关于用 pyinstaller的打包，之前直接执行命令发现编译出来的百多M，后面使用虚拟环境来打包要小一半。
-* 1安装工具
+
+抛弃之前用虚拟环境打包，直接
 ```
-pip install pipenv
-```
-* 2建立环境
-```
-pipenv install
-```
-* 3进入环境
-```
-pipenv shell
-```
-* 4安装相关模块
-```
-pip install pyautogui
-pip install pyqt5
-pip install loguru
-pip install .\pk\pyWinhook-1.6.2-cp39-cp39-win_amd64.whl
-pip install pyinstaller
-```
-* 5打包
-```
-pyinstaller -Fw .\autogui.py
+pyinstaller -Fw .\autogui.py --paths="C:\Users\dell\AppData\Local\Programs\Python\Python39\Lib\site-packages\cv2"
 ```
 
 ## 版本说明
@@ -174,6 +161,7 @@ pyinstaller -Fw .\autogui.py
 ### V1.4
 增加了图片识别判断语句
 增加了当脚本停止执行时自动恢复窗体
+修复打包的EXE无法识别图片的BUG
 
 ### V1.3
 增加空格键的录制
@@ -208,7 +196,7 @@ python .\autogui.py
 ```
 如果需要生成exe可执行
 ```
-pyinstaller -F  autogui.py --noconsole
+pyinstaller -F  autogui.py --noconsole 
 ```
 界面如下
 ![](./pic/p_2.png)
