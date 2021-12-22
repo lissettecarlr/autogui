@@ -1,7 +1,6 @@
 # 该文件用于脚本的执行和停止
 
 from os import terminal_size
-from PIL.Image import NONE
 import pyautogui
 import time
 import threading
