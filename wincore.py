@@ -13,6 +13,7 @@ import time
 import json
 import configparser
 import threading
+import webbrowser
 
 class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def __init__(self):
@@ -83,6 +84,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.creatExample.triggered.connect(self.creatExampleScripts)
         self.openCfg.triggered.connect(self.openConfig)
         self.setCfg.triggered.connect(self.reloadConfig)
+        self.NetExample.triggered.connect(self.netExample)
 
         # 实例脚本执行器
         self.runnerThread = run.Runner()
@@ -283,6 +285,10 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
 
     def reloadConfig(self):
         self.readConfig()
+
+    def netExample(self):
+        webbrowser.open("https://github.com/lissettecarlr/autogui/tree/main/exampleScripts")
+        
 
 def openTxt():
     os.system('config.ini')
