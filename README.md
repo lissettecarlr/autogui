@@ -40,6 +40,12 @@ pip debug --verbose
 ```
 在pk文件夹中已经放置了我使用的安装包
 
+* 使用requirements
+也可以一键全部安装
+```
+pip install -r requirements.txt 
+```
+
 ## 最新版本的使用
 
 ### 不需要界面直接命令行运行脚本

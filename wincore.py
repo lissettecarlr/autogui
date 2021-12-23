@@ -28,14 +28,17 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
             config.read('config.ini')
             self.mouseCmdInterval = config.getint('winCfg', 'mouseCmdInterval')
             self.shortcutKeys={'start':config.get('winCfg', 'startKey'),'stop':config.get('winCfg', 'stopKey'),'capture':config.get('winCfg', 'captureKey'),"stopRecord":config.get('winCfg', 'stopRecordKey')}
-            # 需要修改UI
+            self.scriptsPath = config.get('winCfg',"scriptsPath").strip("\"")
+
         except:
             logger.error("read config error")
             self.mouseCmdInterval = 200
             self.shortcutKeys={'start':'F9','stop':'F10','capture':'F8',"stopRecord":'F7'}
+            self.scriptsPath = "./scripts/"
 
         logger.info(self.shortcutKeys['start']+" "+self.shortcutKeys['stop'])
         logger.info(self.shortcutKeys['capture']+" "+self.shortcutKeys['stopRecord'])
+        logger.info(self.scriptsPath)
         
 
     def init(self):
@@ -58,14 +61,16 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.pushButton_6.setText("停止("+self.shortcutKeys['stopRecord'].replace("\"","")+")")
         self.label_6.setText(self.shortcutKeys['capture'].replace("\"","")+"单次抓取")
 
-        if(os.path.exists('./scripts') ==False):#如果没有这个而文件夹
+    
+        if(os.path.exists(self.scriptsPath) ==False):#如果没有这个而文件夹
             os.mkdir("scripts")
             logger.debug("not find scripts,mkdir it")
 
-        for file in os.listdir("./scripts"):
-            logger.debug(file)
-            if(file.endswith(".txt")):#只加载txt文件
-                self.comboBox.addItem("./scripts/"+file)
+        self.reloadScriptsList()
+        # for file in os.listdir("./scripts"):
+        #     logger.debug(file)
+        #     if(file.endswith(".txt")):#只加载txt文件
+        #         self.comboBox.addItem("./scripts/"+file)
     
         # 限制输入正整数
         reg = QRegExp("^[0-9]*[1-9][0-9]*$")
@@ -84,6 +89,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.creatExample.triggered.connect(self.creatExampleScripts)
         self.openCfg.triggered.connect(self.openConfig)
         self.setCfg.triggered.connect(self.reloadConfig)
+        self.refresh.triggered.connect(self.reloadScriptsList)
         self.NetExample.triggered.connect(self.netExample)
 
         # 实例脚本执行器
@@ -108,9 +114,11 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         hm.HookMouse()
 
     def reloadScriptsList(self):
-        for file in os.listdir("./scripts"):
+        self.comboBox.clear()
+        #for file in os.listdir("./scripts"):
+        for file in os.listdir(self.scriptsPath):
             if(file.endswith(".txt")):#只加载txt文件
-                self.comboBox.addItem("./scripts/"+file)
+                self.comboBox.addItem(self.scriptsPath+file)
 
     def setCycleCount(self,count):
         self.lineEdit.setText(count)
@@ -162,7 +170,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         if(name == ""):
             self.statusBar.showMessage('脚本未命名，使用默认名称',3000) 
             name = "newScripts"
-        path = "./scripts/"+name+".txt"
+        #path = "./scripts/"+name+".txt"
+        path = self.scriptsPath+name+".txt"
 
         output = json.dumps(self.record, indent=1)
         output = output.replace('\r\n', '\n').replace('\r', '\n')
@@ -173,11 +182,11 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.creatScripts = False
         self.pushButton_5.setEnabled(True)
         #录制完刷新一下下拉菜单
-        self.comboBox.clear()
-
-        for file in os.listdir("./scripts"):
-            if(file.endswith(".txt")):#只加载txt文件
-                self.comboBox.addItem("./scripts/"+file)
+        self.reloadScriptsList()
+        # self.comboBox.clear()
+        # for file in os.listdir("./scripts"):
+        #     if(file.endswith(".txt")):#只加载txt文件
+        #         self.comboBox.addItem("./scripts/"+file)
 
     def closeEvent(self,event):
         self.runnerThread.close()
@@ -279,7 +288,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
 
     def creatExampleScripts(self):
         ex = "[\n [5000,\"keyboard\",\"down\",\"1\"],\n [142,\"keyboard\",\"up\",\"1\"]\n]"
-        open("./scripts/example.txt","w").write(ex)
+        open(self.scriptsPath+"example.txt","w").write(ex)
         self.reloadScriptsList()
 
     def openConfig(self):
@@ -298,7 +307,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
 
     def netExample(self):
         webbrowser.open("https://github.com/lissettecarlr/autogui/tree/main/exampleScripts")
-        
+
 
 def openTxt():
     os.system('config.ini')

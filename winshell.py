@@ -137,6 +137,9 @@ class Ui_MainWindow(object):
         self.openCfg.setObjectName("openCfg")
         self.setCfg = QtWidgets.QAction(MainWindow)
         self.setCfg.setObjectName("setCfg")
+        self.refresh = QtWidgets.QAction(MainWindow)
+        self.refresh.setObjectName("Refresh")
+
         self.creatExample = QtWidgets.QAction(MainWindow)
         self.creatExample.setObjectName("creatExample")
         self.NetExample = QtWidgets.QAction(MainWindow)
@@ -145,6 +148,7 @@ class Ui_MainWindow(object):
 
         self.menu.addAction(self.openCfg)
         self.menu.addAction(self.setCfg)
+        self.menu.addAction(self.refresh)
         self.menuHelp.addAction(self.creatExample)
         self.menuHelp.addAction(self.NetExample)
 
@@ -174,6 +178,7 @@ class Ui_MainWindow(object):
         self.menuHelp.setTitle(_translate("MainWindow", "帮助"))
         self.openCfg.setText(_translate("MainWindow", "打开配置文件"))
         self.setCfg.setText(_translate("MainWindow", "应用配置文件"))
+        self.refresh.setText(_translate("MainWindow", "刷新脚本列表"))
         self.creatExample.setText(_translate("MainWindow", "创建示例脚本"))
         self.NetExample.setText(_translate("MainWindow", "更多脚本"))
         
