@@ -1,0 +1,16 @@
+[
+[1000,"ifpic","True","1.png"],
+[100,"keyboard","down","1"],
+[81,"keyboard","up","1"],
+[1000,"ifpic","True","2.png"],
+[1000,"keyboard","down","2"],
+[81,"keyboard","up","2"],
+[100,"ifpic","True","3.png"],
+[1000,"keyboard","down","3"],
+[81,"keyboard","up","3"],
+[100,"ifpic","True","4.png"],
+[1000,"keyboard","down","4"],
+[81,"keyboard","up","4"],
+[100,"keyboard","down","5"],
+[81,"keyboard","up","5"],
+]

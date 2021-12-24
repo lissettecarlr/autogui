@@ -20,7 +20,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         super(wincore,self).__init__()
         self.setupUi(self)
         self.init()
-        
+
+    #读取config.ini中的配置    
     def readConfig(self):
         try:
             logger.info("read config.....")
@@ -92,19 +93,14 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.refresh.triggered.connect(self.reloadScriptsList)
         self.NetExample.triggered.connect(self.netExample)
         self.NetScriptsHelp.triggered.connect(self.netScriptsHelp)
-        
         # 实例脚本执行器
         self.runnerThread = run.Runner()
         self.runnerThread.start()
-
         #默认值
         self.setCycleCount("1")
-
         #状态更新定时器
-        # 定时器
         self.timer = QTimer()  # 初始化定时器
         self.timer.timeout.connect(self.statusUpdate)
-    
         #开启监听
         hm = pyWinhook.HookManager()
         #键盘
@@ -114,6 +110,7 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         hm.MouseAll = self.onMouseEvent   
         hm.HookMouse()
 
+    #重新加载脚本列表
     def reloadScriptsList(self):
         self.comboBox.clear()
         #for file in os.listdir("./scripts"):
@@ -301,8 +298,9 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
             thread.start()
         else:
             logger.info("open config fail,creat")
-            cfg = "[runCfg]\nConfidence = 0.7\n\n[winCfg]\nmouseCmdInterval = 200\nstartKey = \"F9\"\nstopKey = \"F10\"\ncaptureKey = \"F8\"\nstopRecordKey = \"F7\""
-            open("config.ini","w").write(cfg)
+            runCfgTxt = "[runCfg]\nConfidence = 0.7\n\n"
+            winCfgTxt = "[winCfg]\nmouseCmdInterval = 200\nstartKey = \"F9\"\nstopKey = \"F10\"\ncaptureKey = \"F8\"\nstopRecordKey = \"F7\"\nscriptsPath = \"./scripts/\""
+            open("config.ini","w").write(runCfgTxt + winCfgTxt)
             thread = threading.Thread(target=openTxt)
             thread.start()
 

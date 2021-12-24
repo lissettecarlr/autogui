@@ -117,6 +117,7 @@ pip install -r requirements.txt
 |---|---|
 |true|存在|
 |false|不存在|
+|end|结束判断|
 
 
 * 参数4：如果是按键则其值就为键值或文本，如果是鼠标则值为横坐标，纵坐标，如果是寻找图片，则是其地址
@@ -148,9 +149,13 @@ pip install -r requirements.txt
 图片判断示例：
 ```
  [3000,"ifpic","True","./scripts/youdao.png"],
- [100,"keyboard","txt","find it"],
+ [100,"keyboard","down","1"],
+ [100,"keyboard","up","1"],
+ [0,"ifpic","end",""],
  [3000,"ifpic","False","./scripts/youdao.png"],
- [100,"keyboard","txt","not find"],
+ [100,"keyboard","down","2"],
+ [100,"keyboard","up","2"],
+ [0,"ifpic","end",""],
  [100,"keyboard","txt","over"]
 ```
 
@@ -164,9 +169,11 @@ pyinstaller -Fw .\autogui.py --paths="C:\Users\dell\AppData\Local\Programs\Pytho
 ## 版本说明
 
 ### v1.5
-增加按键，刷新脚本选择下拉框X
-配置文件中增加脚本路径的字段X
+增加按键，刷新脚本选择下拉框
+配置文件中增加脚本路径的字段
 帮助里添加脚本编写说明网页快链
+现在picif下面可以增加多条语句
+处理了UI显示当前执行命令不完整的问题
 
 ### V1.4
 增加了图片识别判断语句

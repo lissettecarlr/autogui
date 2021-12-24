@@ -89,7 +89,12 @@ class Runner(threading.Thread):
         self.closeFlag = False
 
     def getNowCmdLog(self):
-        return self.nowCmdLog
+        #缩减长度不然显示不完整
+        temp = str(self.nowCmdLog).replace("\"","")
+        temp = temp.replace("\'","")
+        temp = temp.strip("[")
+        temp = temp.strip("]")
+        return temp
 
     def getFlag(self):
         return self.flag
@@ -149,9 +154,11 @@ class Runner(threading.Thread):
             if(self.closeFlag == False or self.flag == False): #如果中途退出，则不在执行脚本了
                 logger.info("scripts exit")
                 return True
-            # 是否不执行当前命令    
-            if(isContinue == True):
+            # 是否不执行当前命令
+            if(s[i][1] == "ifpic" and s[i][2] == "end"):
                 isContinue = False
+            if(isContinue == True):
+                logger.info("jump"+ str(s[i]))
                 continue
 
             self.nowCmdLog = s[i]
@@ -233,24 +240,25 @@ class Runner(threading.Thread):
                     self.status = "当前语句执行错误，状态未知"  
             # 判断图标是否存在的条件语句                   
             elif(taskType == "ifpic"):
-                try:
-                    picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
-                except:
-                    self.suspend()
-                    self.status = "[E]判断图语句执行错误，已停止"
-                    logger.error("ifpic script error")
-                    return True
-                if(picPos == None):
-                    logger.error("not find pic : " + msg)
-                if(sta == "True" and picPos != None):
-                    logger.info("ifpic is OK1")
-                    isContinue = False
-                elif(sta == "False" and picPos == None):
-                    logger.info("ifpic is OK2")
-                    isContinue = False
-                else:
-                    logger.info("ifpic is NOT")
-                    isContinue = True
+                if(sta != "end"):
+                    try:
+                        picPos=pyautogui.locateCenterOnScreen(msg,confidence=self.pifConfidence)
+                    except:
+                        self.suspend()
+                        self.status = "[E]判断图语句执行错误，已停止"
+                        logger.error("ifpic script error")
+                        return True
+                    if(picPos == None):
+                        logger.error("not find pic : " + msg)
+                    if(sta == "True" and picPos != None):
+                        logger.info("ifpic is OK1")
+                        isContinue = False
+                    elif(sta == "False" and picPos == None):
+                        logger.info("ifpic is OK2")
+                        isContinue = False
+                    else:
+                        logger.info("ifpic is NOT")
+                        isContinue = True
             else:
                 logger.error("script error:taskType")
                 self.status = "当前语句执行错误，类型未知"

@@ -1,0 +1,11 @@
+[
+ [3000,"ifpic","True","./scripts/youdao.png"],
+ [100,"keyboard","down","1"],
+ [100,"keyboard","up","1"],
+ [0,"ifpic","end",""],
+ [3000,"ifpic","False","./scripts/youdao.png"],
+ [100,"keyboard","down","2"],
+ [100,"keyboard","up","2"],
+ [0,"ifpic","end",""],
+ [100,"keyboard","txt","over"]
+]
