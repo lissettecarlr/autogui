@@ -166,6 +166,7 @@ pyinstaller -Fw .\autogui.py --paths="C:\Users\dell\AppData\Local\Programs\Pytho
 ### v1.5
 增加按键，刷新脚本选择下拉框X
 配置文件中增加脚本路径的字段X
+帮助里添加脚本编写说明网页快链
 
 ### V1.4
 增加了图片识别判断语句

@@ -144,13 +144,15 @@ class Ui_MainWindow(object):
         self.creatExample.setObjectName("creatExample")
         self.NetExample = QtWidgets.QAction(MainWindow)
         self.NetExample.setObjectName("NetExample")
-
+        self.NetScriptsHelp = QtWidgets.QAction(MainWindow)
+        self.NetScriptsHelp.setObjectName("NetScriptsHelp")
 
         self.menu.addAction(self.openCfg)
         self.menu.addAction(self.setCfg)
         self.menu.addAction(self.refresh)
         self.menuHelp.addAction(self.creatExample)
         self.menuHelp.addAction(self.NetExample)
+        self.menuHelp.addAction(self.NetScriptsHelp)
 
         self.menubar.addAction(self.menu.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -181,4 +183,5 @@ class Ui_MainWindow(object):
         self.refresh.setText(_translate("MainWindow", "刷新脚本列表"))
         self.creatExample.setText(_translate("MainWindow", "创建示例脚本"))
         self.NetExample.setText(_translate("MainWindow", "更多脚本"))
+        self.NetScriptsHelp.setText(_translate("MainWindow", "脚本编写说明"))
         

@@ -91,7 +91,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         self.setCfg.triggered.connect(self.reloadConfig)
         self.refresh.triggered.connect(self.reloadScriptsList)
         self.NetExample.triggered.connect(self.netExample)
-
+        self.NetScriptsHelp.triggered.connect(self.netScriptsHelp)
+        
         # 实例脚本执行器
         self.runnerThread = run.Runner()
         self.runnerThread.start()
@@ -287,8 +288,11 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
         return True
 
     def creatExampleScripts(self):
-        ex = "[\n [5000,\"keyboard\",\"down\",\"1\"],\n [142,\"keyboard\",\"up\",\"1\"]\n]"
-        open(self.scriptsPath+"example.txt","w").write(ex)
+        h = "[\n"
+        e = "\n]"
+        b1 = "[5000,\"keyboard\",\"down\",\"1\"],"
+        b2 = "\n[142,\"keyboard\",\"up\",\"1\"],"
+        open(self.scriptsPath+"example.txt","w").write(h + b1 + b2 + e)
         self.reloadScriptsList()
 
     def openConfig(self):
@@ -308,7 +312,8 @@ class wincore (QtWidgets.QMainWindow,Ui_MainWindow):
     def netExample(self):
         webbrowser.open("https://github.com/lissettecarlr/autogui/tree/main/exampleScripts")
 
-
+    def netScriptsHelp(self):
+        webbrowser.open("https://github.com/lissettecarlr/autogui/blob/main/doc/scripts.md")
 def openTxt():
     os.system('config.ini')
 
